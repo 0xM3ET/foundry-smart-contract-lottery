@@ -1,0 +1,4 @@
+RaffleTest:testEnteringRaffleEmitsEvent() (gas: 68664)
+RaffleTest:testRaffleInitializesInOpenState() (gas: 7751)
+RaffleTest:testRaffleRecordsWhenTheyEnter() (gas: 68305)
+RaffleTest:testRaffleRevertsWhenYouDontPayEnough() (gas: 10829)

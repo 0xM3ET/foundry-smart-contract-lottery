@@ -15,6 +15,8 @@ contract DeployRaffle is Script {
         //Sepolia -> get sepolia config
         HelperConfig.NetworkConfig memory netConfig = helperConfig.getConfig();
 
+        if (netConfig._subscriptionId == 0) {}
+
         vm.startBroadcast();
         Raffle raffle = new Raffle(
             netConfig._entranceFee,
