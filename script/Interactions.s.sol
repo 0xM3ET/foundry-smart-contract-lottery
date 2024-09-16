@@ -5,6 +5,7 @@ import {Script, console} from "forge-std/Script.sol";
 import {HelperConfig, CodeConstants} from "./HelperConfig.s.sol";
 import {VRFCoordinatorV2_5Mock} from "@chainlink/contracts/src/v0.8/vrf/mocks/VRFCoordinatorV2_5Mock.sol";
 import {LinkToken} from "../test/mocks/LinkToken.sol";
+import {DevOpsTools} from "lib/foundry-devops/src/DevOpsTools.sol";
 
 contract CreateSubscription is Script {
     function createSubscriptionUsingConfig() public returns (uint256, address) {
@@ -37,7 +38,7 @@ contract CreateSubscription is Script {
     }
 }
 
-contract FundSbscription is Script, CodeConstants {
+contract FundSubscription is Script, CodeConstants {
     uint256 public constant FUND_AMOUNT = 3 ether;
 
     function fundSubscriptionUsingConfig() public {
@@ -77,4 +78,39 @@ contract FundSbscription is Script, CodeConstants {
     }
 
     function run() public {}
+}
+
+contract AddConsumer is Script {
+    function addConsumerUsingConfig(address _mostRecentlyDeployed) public {
+        HelperConfig helperConfig = new HelperConfig();
+        uint256 subId = helperConfig.getConfig()._subscriptionId;
+        address vrfCoordinator = helperConfig.getConfig()._vrfCoordiantor;
+
+        addConsumer(_mostRecentlyDeployed, vrfCoordinator, subId);
+    }
+
+    function addConsumer(
+        address contractToAddtoVrf,
+        address vrfCoordinator,
+        uint256 subId
+    ) public {
+        console.log("Adding consumer to VRF coordinator: ", contractToAddtoVrf);
+        console.log("To VrfCoordinator: ", vrfCoordinator);
+        console.log("To chain Id: ", block.chainid);
+
+        vm.startBroadcast();
+        VRFCoordinatorV2_5Mock(vrfCoordinator).addConsumer(
+            subId,
+            contractToAddtoVrf
+        );
+        vm.stopBroadcast();
+    }
+
+    function run() external {
+        address mostRecentlyDeployed = DevOpsTools.get_most_recent_deployment(
+            "Raffle",
+            block.chainid
+        );
+        addConsumerUsingConfig(mostRecentlyDeployed);
+    }
 }
